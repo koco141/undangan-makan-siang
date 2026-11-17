@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Undangan Makan Siang</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #ffe5ec;
+      transition: background-color 0.45s ease;
+      padding: 20px;
+      overflow: hidden;
+    }
+
+    .card {
+      position: relative;
+      width: 100%;
+      max-width: 420px;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(8px);
+      border-radius: 24px;
+      padding: 32px 24px 28px;
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.12);
+      text-align: center;
+      animation: popIn 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+      z-index: 10;
+    }
+
+    @keyframes popIn {
+      from {
+        opacity: 0;
+        transform: scale(0.92) translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 32px;
+      margin-bottom: 10px;
+    }
+
+    .btn-back {
+      background: #f1f3f5;
+      color: #495057;
+      border: none;
+      border-radius: 999px;
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.15s ease, background-color 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .btn-back:hover {
+      background: #e9ecef;
+      transform: translateX(-2px);
+    }
+
+    .emoji {
+      font-size: 48px;
+      margin-bottom: 12px;
+      display: block;
+      user-select: none;
+    }
+
+    h1 {
+      font-size: 22px;
+      color: #2b2d42;
+      line-height: 1.35;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: #6c757d;
+      margin-bottom: 22px;
+      line-height: 1.5;
+    }
+
+    .feedback-box {
+      background: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffeeba;
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 18px;
+      animation: shake 0.35s ease;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-3px); }
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 14px;
+      padding: 13px 22px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+      user-select: none;
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn-primary {
+      background: #ff4d6d;
+      color: #ffffff;
+      box-shadow: 0 6px 18px rgba(255, 77, 109, 0.32);
+    }
+
+    .btn-primary:hover {
+      background: #ff3358;
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background: #f1f3f5;
+      color: #343a40;
+    }
+
+    .btn-secondary:hover {
+      background: #e9ecef;
+      transform: translateY(-2px);
+    }
+
+    .btn-choice {
+      width: 100%;
+      background: #f8f9fa;
+      color: #2b2d42;
+      border: 2px solid #e9ecef;
+      text-align: center;
+    }
+
+    .btn-choice:hover {
+      border-color: #ff4d6d;
+      background: #fff0f3;
+      transform: translateY(-1px);
+    }
+
+    .btn-escape {
+      position: fixed;
+      z-index: 999;
+      transition: left 0.12s ease-out, top 0.12s ease-out;
+    }
+
+    .input-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 6px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 13px 16px;
+      border-radius: 14px;
+      border: 2px solid #dee2e6;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.2s ease;
+      text-align: center;
+    }
+
+    input[type="text"]:focus {
+      border-color: #ff4d6d;
+    }
+
+    /* Mini popup modal for "Tidak Mau" 1-5x */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.35);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 1000;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal-box {
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 24px 22px;
+      max-width: 320px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+      animation: popIn 0.25s ease;
+    }
+
+    .modal-box p {
+      font-size: 16px;
+      font-weight: 700;
+      color: #2b2d42;
+      margin-bottom: 18px;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+  <div class="card" id="app"></div>
+
+  <div class="modal-overlay" id="popupModal">
+    <div class="modal-box">
+      <p id="popupText"></p>
+      <button class="btn btn-primary" id="popupCloseBtn">Oke deh</button>
+    </div>
+  </div>
+
+  <script>
+    const BG_COLORS = [
+      "#FFE5EC",
+      "#E0F4FF",
+      "#FFF3CD",
+      "#E8F5E9",
+      "#F3E5F5",
+      "#FFE8D6",
+      "#E0F7FA",
+      "#FCE4EC",
+      "#EDE7F6",
+      "#FFF8E1"
+    ];
+    let currentBgIndex = 0;
+
+    function changeBackground() {
+      let nextIndex;
+      do {
+        nextIndex = Math.floor(Math.random() * BG_COLORS.length);
+      } while (nextIndex === currentBgIndex && BG_COLORS.length > 1);
+      currentBgIndex = nextIndex;
+      document.body.style.backgroundColor = BG_COLORS[currentBgIndex];
+    }
+
+    const NO_MESSAGES = [
+      "Masa iya gak mau?? 🥺",
+      "Beneran nih gak mau makan bareng?",
+      "Aku udah kosongin waktu buat kamu lho...",
+      "Coba pikirin lagi deh, masa nolak?",
+      "Yaudah deh... tapi beneran nih?"
+    ];
+
+    const ALL_PLACES = [
+      "Marugame Udon",
+      "Sushi Yey",
+      "McD",
+      "Warkop Agam"
+    ];
+
+    const state = {
+      screen: "home", // home | where | custom | list | final
+      history: [],
+      noClickCount: 0,
+      noEscaping: false,
+      customAttempts: 0,
+      customFeedback: "",
+      removedPlaces: [],
+      listFeedback: ""
+    };
+
+    const app = document.getElementById("app");
+    const popupModal = document.getElementById("popupModal");
+    const popupText = document.getElementById("popupText");
+    const popupCloseBtn = document.getElementById("popupCloseBtn");
+
+    function showPopup(message, onClose) {
+      popupText.textContent = message;
+      popupModal.classList.add("show");
+      popupCloseBtn.onclick = () => {
+        changeBackground();
+        popupModal.classList.remove("show");
+        if (onClose) onClose();
+      };
+    }
+
+    function navigate(nextScreen) {
+      changeBackground();
+      cleanupEscapeButton();
+      state.history.push(state.screen);
+      state.screen = nextScreen;
+      render();
+    }
+
+    function goBack() {
+      changeBackground();
+      cleanupEscapeButton();
+      if (state.history.length > 0) {
+        state.screen = state.history.pop();
+        render();
+      }
+    }
+
+    function cleanupEscapeButton() {
+      const existingEscape = document.getElementById("escapeNoBtn");
+      if (existingEscape && existingEscape.parentElement === document.body) {
+        existingEscape.remove();
+      }
+    }
+
+    function moveButtonRandomly(btn) {
+      changeBackground();
+      const pad = 16;
+      const btnWidth = btn.offsetWidth || 120;
+      const btnHeight = btn.offsetHeight || 46;
+      const maxX = Math.max(pad, window.innerWidth - btnWidth - pad);
+      const maxY = Math.max(pad, window.innerHeight - btnHeight - pad);
+      const randomX = Math.floor(pad + Math.random() * (maxX - pad));
+      const randomY = Math.floor(pad + Math.random() * (maxY - pad));
+      btn.style.left = `${randomX}px`;
+      btn.style.top = `${randomY}px`;
+    }
+
+    function attachNoHandlers(btn) {
+      if (state.noEscaping) {
+        btn.classList.add("btn-escape");
+        btn.id = "escapeNoBtn";
+        document.body.appendChild(btn);
+        moveButtonRandomly(btn);
+
+        btn.addEventListener("mouseenter", () => moveButtonRandomly(btn));
+        btn.addEventListener("mousedown", (e) => {
+          e.preventDefault();
+          moveButtonRandomly(btn);
+        });
+        btn.addEventListener("touchstart", (e) => {
+          e.preventDefault();
+          moveButtonRandomly(btn);
+        }, { passive: false });
+        btn.addEventListener("click", (e) => {
+          e.preventDefault();
+          moveButtonRandomly(btn);
+        });
+      } else {
+        btn.addEventListener("click", () => {
+          changeBackground();
+          const msg = NO_MESSAGES[state.noClickCount];
+          state.noClickCount += 1;
+          if (state.noClickCount >= 5) {
+            state.noEscaping = true;
+          }
+          showPopup(msg, () => {
+            render();
+          });
+        });
+      }
+    }
+
+    function render() {
+      cleanupEscapeButton();
+      app.innerHTML = "";
+
+      // Top bar with Back button
+      const topBar = document.createElement("div");
+      topBar.className = "top-bar";
+      if (state.history.length > 0) {
+        const backBtn = document.createElement("button");
+        backBtn.className = "btn-back";
+        backBtn.textContent = "← Kembali";
+        backBtn.addEventListener("click", goBack);
+        topBar.appendChild(backBtn);
+      }
+      app.appendChild(topBar);
+
+      if (state.screen === "home") {
+        app.insertAdjacentHTML("beforeend", `
+          <span class="emoji">🍽️</span>
+          <h1>Mau makan siang bareng gak hari ini?</h1>
+          <p class="subtitle">Pilih yang jujur ya sayang, jangan bikin aku sedih wkwk</p>
+          <div class="btn-group" id="homeBtns">
+            <button class="btn btn-primary" id="yesBtn">Mau ❤️</button>
+          </div>
+        `);
+
+        document.getElementById("yesBtn").addEventListener("click", () => {
+          navigate("where");
+        });
+
+        const noBtn = document.createElement("button");
+        noBtn.className = "btn btn-secondary";
+        noBtn.textContent = "Tidak Mau";
+        if (!state.noEscaping) {
+          document.getElementById("homeBtns").appendChild(noBtn);
+        }
+        attachNoHandlers(noBtn);
+        return;
+      }
+
+      if (state.screen === "where") {
+        app.insertAdjacentHTML("beforeend", `
+          <span class="emoji">🤔</span>
+          <h1>Mau makan dimana?</h1>
+          <p class="subtitle">Kamu mau tentuin sendiri atau lihat pilihan yang ada?</p>
+          <div class="btn-stack">
+            <button class="btn btn-primary" id="customBtn">Mau kesini ✍️</button>
+            <button class="btn btn-secondary" id="listBtn">Mau lihat pilihan 📋</button>
+          </div>
+        `);
+
+        document.getElementById("customBtn").addEventListener("click", () => {
+          state.customFeedback = "";
+          navigate("custom");
+        });
+
+        document.getElementById("listBtn").addEventListener("click", () => {
+          state.listFeedback = "";
+          navigate("list");
+        });
+        return;
+      }
+
+      if (state.screen === "custom") {
+        const feedbackHtml = state.customFeedback
+          ? `<div class="feedback-box">${state.customFeedback}</div>`
+          : "";
+
+        app.insertAdjacentHTML("beforeend", `
+          <span class="emoji">📍</span>
+          <h1>Mau makan dimana nih?</h1>
+          <p class="subtitle">Ketik nama tempat yang lagi kamu pengen:</p>
+          ${feedbackHtml}
+          <form class="input-wrap" id="customForm">
+            <input type="text" id="placeInput" placeholder="Contoh: Sushi, Ramen, dll..." autocomplete="off" />
+            <button type="submit" class="btn btn-primary">Pilih Tempat Ini</button>
+          </form>
+        `);
+
+        const input = document.getElementById("placeInput");
+        input.focus();
+
+        document.getElementById("customForm").addEventListener("submit", (e) => {
+          e.preventDefault();
+          changeBackground();
+          const val = input.value.trim();
+          if (!val) {
+            state.customFeedback = "Isi dulu dong nama tempatnya 😄";
+            render();
+            return;
+          }
+
+          if (val.toLowerCase().includes("warkop agam")) {
+            navigate("final");
+            return;
+          }
+
+          state.customAttempts += 1;
+          if (state.customAttempts < 3) {
+            state.customFeedback = `Jangan ke "${val}", coba cari yang lain ya 😅`;
+            render();
+          } else {
+            state.customFeedback = "";
+            state.listFeedback = `Jangan ke "${val}" deh, lebih baik cari di pilihan ini aja wkwk 👇`;
+            showPopup(`Jangan ke "${val}"... lebih baik cari di pilihan ini aja!`, () => {
+              state.history.push(state.screen);
+              state.screen = "list";
+              render();
+            });
+          }
+        });
+        return;
+      }
+
+      if (state.screen === "list") {
+        const remaining = ALL_PLACES.filter((p) => !state.removedPlaces.includes(p));
+        const feedbackHtml = state.listFeedback
+          ? `<div class="feedback-box">${state.listFeedback}</div>`
+          : "";
+
+        app.insertAdjacentHTML("beforeend", `
+          <span class="emoji">🍜</span>
+          <h1>Pilih tempat makannya:</h1>
+          <p class="subtitle">Klik salah satu yang paling kamu mau</p>
+          ${feedbackHtml}
+          <div class="btn-stack" id="placeList"></div>
+        `);
+
+        const listContainer = document.getElementById("placeList");
+        remaining.forEach((place) => {
+          const btn = document.createElement("button");
+          btn.className = "btn btn-choice";
+          btn.textContent = place;
+          btn.addEventListener("click", () => {
+            changeBackground();
+            if (place === "Warkop Agam") {
+              navigate("final");
+            } else {
+              state.removedPlaces.push(place);
+              state.listFeedback = `Coba pilih ulang, tadi "${place}" gak masuk ke database 😅`;
+              render();
+            }
+          });
+          listContainer.appendChild(btn);
+        });
+        return;
+      }
+
+      if (state.screen === "final") {
+        app.insertAdjacentHTML("beforeend", `
+          <span class="emoji">🥳❤️</span>
+          <h1>Yeay! Fix ke Warkop Agam ya!</h1>
+          <p class="subtitle">Makasih udah mau makan siang bareng aku. Siap-siap ya sayang, aku jemput/ketemuan sebentar lagi! 😘</p>
+          <button class="btn btn-secondary" id="resetBtn">Ulangi dari awal</button>
+        `);
+
+        document.getElementById("resetBtn").addEventListener("click", () => {
+          changeBackground();
+          state.screen = "home";
+          state.history = [];
+          state.noClickCount = 0;
+          state.noEscaping = false;
+          state.customAttempts = 0;
+          state.customFeedback = "";
+          state.removedPlaces = [];
+          state.listFeedback = "";
+          render();
+        });
+      }
+    }
+
+    render();
+  </script>
+</body>
+</html>
